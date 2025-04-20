@@ -21,15 +21,12 @@ library(arrow)
 library(dplyr)
 library(tidyr)
 library(BiocNeighbors)
-
 library(tiff)
 library(rjson)
 library(Matrix)
 library(SFEData)
 library(RBioFormats)
 library(ExperimentHub)
-
-
 
 theme_set(theme_bw())
 options(timeout = Inf)
@@ -76,30 +73,8 @@ plotImage(sfe, image_id = "morphology_focus", channel = 1L, show_axes = TRUE, da
   ggtitle("Plot the images") +
   theme(plot.title = element_text(hjust = 0.5))
 
-bbox1 <- c(xmin = 3500, xmax = 4500, ymin = -1500, ymax = -250)
-bbox2 <- c(xmin = 3500, xmax = 4500, ymin = -2450, ymax = -2050)
-
-bboxes_sf <- c(st_as_sfc(st_bbox(bbox1)), st_as_sfc(st_bbox(bbox2)))
-plotImage(sfe, image_id = "morphology_focus", channel = 1L, show_axes = TRUE, dark = TRUE, 
-          normalize_channels = TRUE, palette = viridis_pal(option = "H")(255)) +
-  geom_sf(data = bboxes_sf, fill = NA, color = "white", linewidth = 1) +
-  ggtitle("Plot the images") +
-  theme(plot.title = element_text(hjust = 0.5))
-
-plotImage(sfe, image_id = "morphology_focus", channel = 1L,
-          bbox = bbox1, normalize_channels = TRUE, palette = viridis_pal(option = "H")(255))
-
-plotImage(sfe, image_id = "morphology_focus", channel = 1L,
-          bbox = bbox2, normalize_channels = TRUE, palette = viridis_pal(option = "H")(255))
-
 plotGeometry(sfe, colGeometryName = "cellSeg", fill = FALSE, dark = TRUE,
              image_id = "morphology_focus", channel = 1L, bbox = bbox1, 
-             normalize_channels = TRUE, palette = viridis_pal(option = "H")(255))
-plotGeometry(sfe, colGeometryName = "nucSeg", fill = FALSE, dark = TRUE,
-             image_id = "morphology_focus", channel = 1L, bbox = bbox1, 
-             normalize_channels = TRUE, palette = viridis_pal(option = "H")(255))
-plotGeometry(sfe, colGeometryName = c("cellSeg", "nucSeg"), fill = FALSE, 
-             dark = TRUE, image_id = "morphology_focus", channel = 1L, bbox = bbox1, 
              normalize_channels = TRUE, palette = viridis_pal(option = "H")(255))
 
 #Quality control
@@ -234,15 +209,6 @@ plotSpatialFeature(sfe, "cell_area", colGeometryName = "cellSeg", show_axes = TR
 
 plotSpatialFeature(sfe, "nucleus_area", colGeometryName = "nucSeg", show_axes = TRUE) + 
   ggtitle("Nuclei area distributed in space") +
-  theme(plot.title = element_text(hjust = 0.5))
-
-#Zoom into smaller regions to see the nature of the very large cells
-
-bbox3 <- c(xmin = 3500, xmax = 4500, ymin = -1500, ymax = -250)
-plotGeometry(sfe, colGeometryName = c("cellSeg", "nucSeg"), fill = FALSE, 
-             dark = TRUE, image_id = "morphology_focus", 
-             channel = 1L, bbox = bbox3, normalize_channels = TRUE) + 
-  ggtitle("Dentate gyrus") +
   theme(plot.title = element_text(hjust = 0.5))
 
 #Large cells in this case are not an artifact, because this is a dentate gyrus characterized by high lithin density 
@@ -391,23 +357,6 @@ plotLocalResult(sfe, "localmoran", attribute = "pysal",
                 features = c("nCounts", "nGenes", "cell_area", "nucleus_area"),
                 colGeometryName = "centroids", scattermore = TRUE, pointsize = 1.5,
                 ncol = 1, size = 3)
-
-bbox4 <- c(xmin = 3500, xmax = 5500, ymin = -2450, ymax = -25)
-
-plotLocalResult(sfe, "localmoran",
-                features = c("nCounts", "nGenes", "cell_area", "nucleus_area"),
-                colGeometryName = "cellSeg", divergent = TRUE, diverge_center = 0,
-                ncol = 2, bbox = bbox4)
-
-plotLocalResult(sfe, "localmoran", attribute = "pysal",
-                features = c("nCounts", "nGenes", "cell_area", "nucleus_area"),
-                colGeometryName = "cellSeg", bbox = bbox4, ncol = 2)
-
-plotLocalResult(sfe, "localmoran", attribute = "-log10p_adj", 
-                features = c("nCounts", "nGenes", "cell_area", "nucleus_area"),
-                colGeometryName = "cellSeg", divergent = TRUE, 
-                diverge_center = -log10(0.05),
-                ncol = 2, bbox = bbox4)
 
 #Here in this dense region, for these metrics, local Moran’s I is generally significant.
 #It seems that locally we may have a mixture of positive and negative spatial autocorrelation.
